@@ -1,7 +1,5 @@
-import numpy as np
 import cv2
 import pafy
-import os
 
 if __name__ == '__main__':
 
@@ -18,7 +16,7 @@ if __name__ == '__main__':
             ret, frame = video.read()
             if ret:
                 cv2.imwrite('dataset/face{:d}.jpg'.format(i), frame)
-                count += 30
+                count += 60
                 video.set(1, count)
                 i += 1
             else:
