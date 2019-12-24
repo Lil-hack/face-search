@@ -3,6 +3,9 @@ youtube-dl
 pafy
 cmake
 face_recognition
+mtcnn
+tensorflow
+opencv-contrib-python
 
 
 apscheduler
@@ -14,8 +17,7 @@ scikit-image
 numpy==1.16.3
 Flask
 gunicorn
-mtcnn
-tensorflow
-opencv-contrib-python
+
+
 Flask-APScheduler
 requests

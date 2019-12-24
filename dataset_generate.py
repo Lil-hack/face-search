@@ -1,16 +1,12 @@
 import numpy as np
 import cv2
 import pafy
-
+import os
 
 if __name__ == '__main__':
-    list_video_url=[]
-    list_video_url.append('https://www.youtube.com/watch?v=FBA3xz0wJTY')
-    list_video_url.append('https://www.youtube.com/watch?v=FBA3xz0wJTY')
-    list_video_url.append('https://www.youtube.com/watch?v=FBA3xz0wJTY')
-    list_video_url.append('https://www.youtube.com/watch?v=FBA3xz0wJTY')
-    list_video_url.append('https://www.youtube.com/watch?v=FBA3xz0wJTY')
 
+    list_video_url=[]
+    list_video_url.append('https://www.youtube.com/watch?v=S-vDsDdCj_0')
 
     count = 0
     i=0
@@ -22,11 +18,8 @@ if __name__ == '__main__':
             ret, frame = video.read()
             if ret:
                 cv2.imwrite('dataset/face{:d}.jpg'.format(i), frame)
-                count += 60
+                count += 30
                 video.set(1, count)
                 i += 1
             else:
                 break
-
-
-
