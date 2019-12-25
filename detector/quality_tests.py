@@ -26,8 +26,8 @@ if __name__ == '__main__':
     if quality_test==2:
         count_face=0
         detector = MTCNN()
-        with open('dataset_tenserflow.csv', 'w') as csvfile:
-            fieldnames = ['N', 'Tenser']
+        with open('dataset_tensorflow.csv', 'w') as csvfile:
+            fieldnames = ['N', 'Tensor']
             writer = csv.DictWriter(csvfile, fieldnames=fieldnames)
             writer.writeheader()
             for i in range(1, 1000):
