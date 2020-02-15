@@ -5,6 +5,7 @@ cmake
 face_recognition
 mtcnn
 tensorflow
+tensorflow-hub
 opencv-contrib-python
 
 
