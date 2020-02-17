@@ -30,7 +30,7 @@ def crop_face(img,detector):
 if __name__ == '__main__':
 
     detector = MTCNN()
-    folder='women'
+    folder='men2'
     i=0
     for list_photos in os.walk('/home/zikboy/Documents/data/{}'.format(folder)):
             for photo in list_photos[2]:
@@ -43,7 +43,7 @@ if __name__ == '__main__':
                     try:
                         norm_face=cv2.resize(cropped, (200, 200),fx=0.3,fy=0.3, interpolation=cv2.INTER_AREA)
                         # norm_face=cv2.normalize(norm_face, norm_face, 0, 255, cv2.NORM_MINMAX)
-                        cv2.imwrite(r'{}/{}.jpg'.format(folder,uuid.uuid1()), norm_face)
+                        cv2.imwrite(r'{}.jpg'.format(folder,uuid.uuid1()), norm_face)
                     except:
                         pass
 
