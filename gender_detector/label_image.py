@@ -18,6 +18,7 @@ from __future__ import division
 from __future__ import print_function
 
 import argparse
+import time
 
 import numpy as np
 import tensorflow as tf
@@ -36,8 +37,8 @@ def load_graph(model_file):
 
 
 def read_tensor_from_image_file(file_name,
-                                input_height=299,
-                                input_width=299,
+                                input_height=500,
+                                input_width=500,
                                 input_mean=0,
                                 input_std=255):
   input_name = "file_reader"
@@ -97,7 +98,7 @@ if __name__ == "__main__":
   args = parser.parse_args()
 
   if args.graph:
-    model_file = '/tmp/output_graph.pb'
+    model_file = args.graph
   if args.image:
     file_name = args.image
   if args.labels:
@@ -116,12 +117,7 @@ if __name__ == "__main__":
     output_layer = args.output_layer
 
   graph = load_graph(model_file)
-  t = read_tensor_from_image_file(
-      file_name,
-      input_height=input_height,
-      input_width=input_width,
-      input_mean=input_mean,
-      input_std=input_std)
+
 
   input_name = "import/" + input_layer
   output_name = "import/" + output_layer
@@ -129,12 +125,22 @@ if __name__ == "__main__":
   output_operation = graph.get_operation_by_name(output_name)
 
   with tf.compat.v1.Session(graph=graph) as sess:
-    results = sess.run(output_operation.outputs[0], {
-        input_operation.outputs[0]: t
-    })
-  results = np.squeeze(results)
+    t0 = time.time()
+    t = read_tensor_from_image_file(
+      file_name,
+      input_height=input_height,
+      input_width=input_width,
+      input_mean=input_mean,
+      input_std=input_std)
 
-  top_k = results.argsort()[-5:][::-1]
-  labels = load_labels(label_file)
-  for i in top_k:
-    print(labels[i], results[i])
+    results = sess.run(output_operation.outputs[0], {
+      input_operation.outputs[0]: t
+    })
+
+    results = np.squeeze(results)
+
+    top_k = results.argsort()[-5:][::-1]
+    labels = load_labels(label_file)
+    for i in top_k:
+      print(labels[i], results[i])
+    print(time.time() - t0)
