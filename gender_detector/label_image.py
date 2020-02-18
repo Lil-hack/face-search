@@ -72,6 +72,39 @@ def load_labels(label_file):
     label.append(l.rstrip())
   return label
 
+def find_gender(img):
+  model_file = '/home/zikboy/PycharmProjects/face-search/gender_detector/gender_model.pb'
+  input_layer = 'Placeholder'
+  output_layer = 'final_result'
+  label_file = '/home/zikboy/PycharmProjects/face-search/gender_detector/output_labels.txt'
+  graph = load_graph(model_file)
+
+  input_name = "import/" + input_layer
+  output_name = "import/" + output_layer
+  input_operation = graph.get_operation_by_name(input_name)
+  output_operation = graph.get_operation_by_name(output_name)
+
+  with tf.compat.v1.Session(graph=graph) as sess:
+    t0 = time.time()
+    t = read_tensor_from_image_file(
+      img,
+      input_height=299,
+      input_width=299,
+      input_mean=0,
+      input_std=255)
+
+    results = sess.run(output_operation.outputs[0], {
+      input_operation.outputs[0]: t
+    })
+
+    results = np.squeeze(results)
+
+    top_k = results.argsort()[-5:][::-1]
+    labels = load_labels(label_file)
+    for i in top_k:
+      print(labels[i], results[i])
+    print(time.time() - t0)
+
 
 if __name__ == "__main__":
   file_name = "tensorflow/examples/label_image/data/grace_hopper.jpg"
@@ -116,8 +149,11 @@ if __name__ == "__main__":
   if args.output_layer:
     output_layer = args.output_layer
 
+  model_file = 'models/gender_model.pb'
+  input_layer='Placeholder'
+  output_layer='final_result'
+  label_file='models/output_labels.txt'
   graph = load_graph(model_file)
-
 
   input_name = "import/" + input_layer
   output_name = "import/" + output_layer

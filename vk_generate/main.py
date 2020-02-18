@@ -3,10 +3,10 @@ import os
 import sys
 import threading
 import uuid
-
 import aiohttp
 import asyncio
 import io
+import zipfile
 import requests
 # import psycopg2
 from aiohttp import ClientSession
@@ -18,7 +18,7 @@ import time
 import cv2
 import numpy as np
 from mtcnn.mtcnn import MTCNN
-from flask import Flask
+from flask import Flask, send_file, request
 import multiprocessing
 # from psycopg2 import sql
 
@@ -32,7 +32,7 @@ METKA=False
 list_data=[]
 list_hash=[]
 CLUSTER_URL='https://main-cluster.herokuapp.com/'
-
+dict_id={'start':1,'end':10}
 with open('vk_generate/tokens.txt', 'r') as f:
     for line in f:
         list_token.append(str(line).rstrip('\n'))
@@ -64,16 +64,37 @@ def start_proc():
     except Exception as ex:
         print(ex)
 
+def zipdir(path, ziph):
+    # ziph is zipfile handle
+    for root, dirs, files in os.walk(path):
+        for file in files:
+            ziph.write(os.path.join(root, file))
 @app.route('/')
 def homepage():
     return "hello"
 
+@app.route('/create')
+def createzip():
+    zipf = zipfile.ZipFile('vk_generate/archive.zip', 'w', zipfile.ZIP_DEFLATED)
+    zipdir('5k_likes/', zipf)
+    zipf.close()
+    return 'ok'
+
+@app.route('/get')
+def getzip():
+    try:
+        return send_file('archive.zip')
+    except Exception as e:
+        return str(e)
+    return 'ok'
 @app.route('/run')
 def run():
-
+    dict_id['start'] = request.args.get('start')
+    dict_id['end'] = request.args.get('end')
     my_thread = threading.Thread(target=start_proc)
     my_thread.start()
     # start_proc()
+
     return "ok"
 
 async def bound_fetch_zero(sem,id,session):
@@ -93,7 +114,7 @@ async def fetch_zero(id, session):
 
                 for it in list_photo:
                     for photo in it['items']:
-                        if photo['likes']['count']>5000:
+                        if photo['likes']['count']<1000 and photo['likes']['count']>500:
                             list_data.append((photo['owner_id'], photo['sizes'][-1]['url']))
 
     except Exception as ex:
@@ -103,7 +124,7 @@ async def fetch(url,id, session,detector):
     async with session.get(url) as response:
 
         try:
-            folder='5k_likes'
+            folder='0.5k_likes'
             resp=await response.read()
 
             img = cv2.imdecode(np.array(bytearray(resp), dtype=np.uint8), -1)
@@ -133,7 +154,7 @@ async def run_zero(id):
 
     async with ClientSession() as session:
 
-        for id in range((id - 1) * 10, id * 10):
+        for id in range((id - 1) * 1000, id * 1000):
             #pass Semaphore and session to every GET request
             task = asyncio.ensure_future(bound_fetch_zero(sem,id, session))
             tasks.append(task)
@@ -180,12 +201,13 @@ async def run(detector):
 
 def run_start():
     # time.sleep(5)
+    ttime = time.time()
     t0 = time.time()
     r=requests.get(CLUSTER_URL+'get_id')
     id= r.json()['id']
     print('id={}'.format(id))
     detector = MTCNN()
-    for id in range(1,500):
+    for id in range(  int(dict_id['start']),  int(dict_id['end'])):
         loop = asyncio.new_event_loop()
 
         asyncio.set_event_loop(loop)
@@ -216,6 +238,7 @@ def run_start():
         print(len(list_data))
     # process = multiprocessing.Process(target=run_start())
     # process.start()
+    print("end: {} minutes".format((time.time() - ttime)))
     sys.exit()
 
 
