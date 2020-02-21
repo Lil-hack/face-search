@@ -15,7 +15,7 @@ if __name__ == '__main__':
         while (True):
             ret, frame = video.read()
             if ret:
-                cv2.imwrite('dataset/face{:d}.jpg'.format(i), frame)
+                cv2.imwrite('dataset_for_tests/face{:d}.jpg'.format(i), frame)
                 count += 60
                 video.set(1, count)
                 i += 1

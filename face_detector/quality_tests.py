@@ -16,7 +16,7 @@ if __name__ == '__main__':
             writer = csv.DictWriter(csvfile, fieldnames=fieldnames)
             writer.writeheader()
             for i in range(1, 1000):
-                resp = cv2.imread('dataset/face{}.jpg'.format(i), cv2.COLOR_BGR2GRAY)
+                resp = cv2.imread('dataset_for_tests/face{}.jpg'.format(i), cv2.COLOR_BGR2GRAY)
                 faces = face_cascade.detectMultiScale(resp, 1.3, 5, minSize=(30, 30))
                 count_face += len(faces)
                 writer.writerow({'N': i, 'Haar': len(faces)})
@@ -27,25 +27,25 @@ if __name__ == '__main__':
         count_face=0
         detector = MTCNN()
         with open('dataset_tensorflow.csv', 'w') as csvfile:
-            fieldnames = ['N', 'Tensor']
+            fieldnames = ['N', 'MTCNN']
             writer = csv.DictWriter(csvfile, fieldnames=fieldnames)
             writer.writeheader()
             for i in range(1, 1000):
-                img = cv2.imread('dataset/face{}.jpg'.format(i), cv2.COLOR_BGR2GRAY)
+                img = cv2.imread('dataset_for_tests/face{}.jpg'.format(i), cv2.COLOR_BGR2GRAY)
                 faces = detector.detect_faces(img)
                 count_face += len(faces)
-                writer.writerow({'N': i, 'Tenser': len(faces)})
+                writer.writerow({'N': i, 'MTCNN': len(faces)})
 
         print (count_face)
 
     if quality_test==3:
         count_face = 0
         with open('dataset_dlib.csv', 'w') as csvfile:
-            fieldnames = ['N', 'Haar']
+            fieldnames = ['N', 'Dlib']
             writer = csv.DictWriter(csvfile, fieldnames=fieldnames)
             writer.writeheader()
             for i in range(1, 1000):
-                img = cv2.imread('dataset/face{}.jpg'.format(i), cv2.COLOR_BGR2GRAY)
+                img = cv2.imread('dataset_for_tests/face{}.jpg'.format(i), cv2.COLOR_BGR2GRAY)
                 faces = face_recognition.face_locations(img)
                 count_face += len(faces)
                 writer.writerow({'N': i, 'Dlib': len(faces)})
