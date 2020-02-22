@@ -32,7 +32,7 @@ from mtcnn.mtcnn import MTCNN
 # Ваш токен от BotFather
 from aiogram.utils.executor import start_webhook
 
-from gender_detector import label_image
+from gender_detector import gender_detect
 from likes_detector import likes_detect
 
 TOKEN = '689185271:AAGciGxBCtNKzOB5SvjPjuliwqxSY75GVWo'
@@ -87,7 +87,7 @@ async def photo(message: types.Message):
             img = img[y:y + h, x:x + w]
             cv2.imwrite(r'/tmp/123.jpg', cv2.resize(img, (200, 200),fx=0.3,fy=0.3, interpolation=cv2.INTER_AREA))
             time.sleep(1)
-            label_image.find_gender('/tmp/123.jpg')
+            gender_detect.find_gender('/tmp/123.jpg')
             likes_detect.find_likes('/tmp/123.jpg')
             await bot.send_message(message.chat.id, 'Я начал искать')
             # with conn.cursor() as cursor:

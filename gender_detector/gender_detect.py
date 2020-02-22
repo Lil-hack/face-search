@@ -16,7 +16,7 @@
 from __future__ import absolute_import
 from __future__ import division
 from __future__ import print_function
-
+import os
 import argparse
 import time
 
@@ -72,11 +72,33 @@ def load_labels(label_file):
     label.append(l.rstrip())
   return label
 
-def find_likes(img):
-  model_file = '/home/zikboy/PycharmProjects/face-search/likes_detector/likes_model.pb'
+def find_gender(img,sess,output_operation,input_operation,label_file):
+  t0 = time.time()
+  t = read_tensor_from_image_file(
+    img,
+    input_height=299,
+    input_width=299,
+    input_mean=0,
+    input_std=255)
+
+  results = sess.run(output_operation.outputs[0], {
+    input_operation.outputs[0]: t
+  })
+
+  results = np.squeeze(results)
+
+  top_k = results.argsort()[-5:][::-1]
+  labels = load_labels(label_file)
+  for i in top_k:
+    print(labels[i], results[i])
+  print(time.time() - t0)
+  return labels[top_k[0]], results[top_k[0]]
+
+def find_gender_bot(img):
+  model_file = '/home/zikboy/PycharmProjects/face-search/gender_detector/gender_model.pb'
   input_layer = 'Placeholder'
   output_layer = 'final_result'
-  label_file = '/likes_detector/likes_label.txt'
+  label_file = '/gender_detector/gender_labels.txt'
   graph = load_graph(model_file)
 
   input_name = "import/" + input_layer
@@ -107,52 +129,11 @@ def find_likes(img):
 
 
 if __name__ == "__main__":
-  file_name = "tensorflow/examples/label_image/data/grace_hopper.jpg"
-  model_file = \
-    "tensorflow/examples/label_image/data/inception_v3_2016_08_28_frozen.pb"
-  label_file = "tensorflow/examples/label_image/data/imagenet_slim_labels.txt"
-  input_height = 299
-  input_width = 299
-  input_mean = 0
-  input_std = 255
-  input_layer = "input"
-  output_layer = "InceptionV3/Predictions/Reshape_1"
 
-  parser = argparse.ArgumentParser()
-  parser.add_argument("--image", help="image to be processed")
-  parser.add_argument("--graph", help="graph/model to be executed")
-  parser.add_argument("--labels", help="name of file containing labels")
-  parser.add_argument("--input_height", type=int, help="input height")
-  parser.add_argument("--input_width", type=int, help="input width")
-  parser.add_argument("--input_mean", type=int, help="input mean")
-  parser.add_argument("--input_std", type=int, help="input std")
-  parser.add_argument("--input_layer", help="name of input layer")
-  parser.add_argument("--output_layer", help="name of output layer")
-  args = parser.parse_args()
-
-  if args.graph:
-    model_file = args.graph
-  if args.image:
-    file_name = args.image
-  if args.labels:
-    label_file = args.labels
-  if args.input_height:
-    input_height = args.input_height
-  if args.input_width:
-    input_width = args.input_width
-  if args.input_mean:
-    input_mean = args.input_mean
-  if args.input_std:
-    input_std = args.input_std
-  if args.input_layer:
-    input_layer = args.input_layer
-  if args.output_layer:
-    output_layer = args.output_layer
-
-  model_file = 'models/gender_model.pb'
-  input_layer='Placeholder'
-  output_layer='final_result'
-  label_file='models/gender_labels.txt'
+  model_file = os.path.dirname(os.path.abspath(__file__)) + '/gender_model.pb'
+  input_layer = 'Placeholder'
+  output_layer = 'final_result'
+  label_file = os.path.dirname(os.path.abspath(__file__)) + '/gender_labels.txt'
   graph = load_graph(model_file)
 
   input_name = "import/" + input_layer
@@ -161,22 +142,16 @@ if __name__ == "__main__":
   output_operation = graph.get_operation_by_name(output_name)
 
   with tf.compat.v1.Session(graph=graph) as sess:
-    t0 = time.time()
-    t = read_tensor_from_image_file(
-      file_name,
-      input_height=input_height,
-      input_width=input_width,
-      input_mean=input_mean,
-      input_std=input_std)
-
-    results = sess.run(output_operation.outputs[0], {
-      input_operation.outputs[0]: t
-    })
-
-    results = np.squeeze(results)
-
-    top_k = results.argsort()[-5:][::-1]
-    labels = load_labels(label_file)
-    for i in top_k:
-      print(labels[i], results[i])
-    print(time.time() - t0)
+    count_detect_men=0
+    count_detect_women = 0
+    count_photo_dataset = 0
+    path_dataset_men=os.path.dirname(os.path.abspath(__file__))+'/dataset_gender_tests/man'
+    for list_photos in os.walk(path_dataset_men):
+      count_photo_dataset=len(list_photos[2])
+      for photo in list_photos[2]:
+        p,k=find_gender(path_dataset_men+'/'+photo,sess,output_operation,input_operation,label_file)
+        if p=='men':
+          count_detect_men=count_detect_men+1
+    print('Всего найдено men: ' + str(count_detect_men))
+    print('Всего фотографий в наборе: ' + str(count_photo_dataset))
+    print('Точность распознавания: ' + str(count_detect_men*100/count_photo_dataset))
