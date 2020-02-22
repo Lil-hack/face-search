@@ -17,7 +17,6 @@ from __future__ import absolute_import
 from __future__ import division
 from __future__ import print_function
 import os
-import argparse
 import time
 
 import numpy as np
@@ -93,40 +92,6 @@ def find_gender(img,sess,output_operation,input_operation,label_file):
     print(labels[i], results[i])
   print(time.time() - t0)
   return labels[top_k[0]], results[top_k[0]]
-
-def find_gender_bot(img):
-  model_file = '/home/zikboy/PycharmProjects/face-search/gender_detector/gender_model.pb'
-  input_layer = 'Placeholder'
-  output_layer = 'final_result'
-  label_file = '/gender_detector/gender_labels.txt'
-  graph = load_graph(model_file)
-
-  input_name = "import/" + input_layer
-  output_name = "import/" + output_layer
-  input_operation = graph.get_operation_by_name(input_name)
-  output_operation = graph.get_operation_by_name(output_name)
-
-  with tf.compat.v1.Session(graph=graph) as sess:
-    t0 = time.time()
-    t = read_tensor_from_image_file(
-      img,
-      input_height=299,
-      input_width=299,
-      input_mean=0,
-      input_std=255)
-
-    results = sess.run(output_operation.outputs[0], {
-      input_operation.outputs[0]: t
-    })
-
-    results = np.squeeze(results)
-
-    top_k = results.argsort()[-5:][::-1]
-    labels = load_labels(label_file)
-    for i in top_k:
-      print(labels[i], results[i])
-    print(time.time() - t0)
-
 
 if __name__ == "__main__":
 
