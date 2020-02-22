@@ -6,19 +6,9 @@ face_recognition
 mtcnn
 tensorflow
 tensorflow-hub
-opencv-contrib-python
-
-
 apscheduler
-psycopg2
 aiohttp
-
 scikit-image
-
-numpy==1.16.3
+numpy
 Flask
-gunicorn
 
-
-Flask-APScheduler
-requests

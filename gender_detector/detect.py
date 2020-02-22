@@ -144,14 +144,30 @@ if __name__ == "__main__":
   with tf.compat.v1.Session(graph=graph) as sess:
     count_detect_men=0
     count_detect_women = 0
-    count_photo_dataset = 0
+    count_photo_dataset_men = 0
+    count_photo_dataset_women = 0
     path_dataset_men=os.path.dirname(os.path.abspath(__file__))+'/dataset_gender_tests/man'
+    path_dataset_women = os.path.dirname(os.path.abspath(__file__)) + '/dataset_gender_tests/woman'
+
     for list_photos in os.walk(path_dataset_men):
-      count_photo_dataset=len(list_photos[2])
+      count_photo_dataset_men=len(list_photos[2])
       for photo in list_photos[2]:
         p,k=find_gender(path_dataset_men+'/'+photo,sess,output_operation,input_operation,label_file)
         if p=='men':
           count_detect_men=count_detect_men+1
+
+
+    for list_photos in os.walk(path_dataset_women):
+      count_photo_dataset_women = len(list_photos[2])
+      for photo in list_photos[2]:
+        p, k = find_gender(path_dataset_women + '/' + photo, sess, output_operation, input_operation, label_file)
+        if p == 'women':
+          count_detect_women = count_detect_women + 1
+
     print('Всего найдено men: ' + str(count_detect_men))
-    print('Всего фотографий в наборе: ' + str(count_photo_dataset))
-    print('Точность распознавания: ' + str(count_detect_men*100/count_photo_dataset))
+    print('Всего фотографий в наборе: ' + str(count_photo_dataset_men))
+    print('Точность распознавания: ' + str(count_detect_men*100/count_photo_dataset_men))
+    print('------------------------------------------------------------')
+    print('Всего найдено women: ' + str(count_detect_women))
+    print('Всего фотографий в наборе: ' + str(count_photo_dataset_women))
+    print('Точность распознавания: ' + str(count_detect_women * 100 / count_photo_dataset_women))
