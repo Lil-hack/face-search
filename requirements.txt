@@ -1,7 +1,13 @@
 opencv-python
+youtube-dl
+pafy
+cmake
+face_recognition
 mtcnn
 tensorflow
+tensorflow-hub
+apscheduler
 aiohttp
+scikit-image
 numpy
 Flask
-
