@@ -2,16 +2,14 @@ import logging
 import os
 from aiogram.types import KeyboardButton, ReplyKeyboardMarkup, ContentType
 from aiogram import Bot, Dispatcher, executor, types
-import time
 import cv2
 import numpy as np
 # Load the cascade
 from mtcnn.mtcnn import MTCNN
 # Ваш токен от BotFather
 from aiogram.utils.executor import start_webhook
-import tensorflow as tf
 
-from telegram_bot import model_detect
+import model_detect
 
 TOKEN = '689185271:AAGciGxBCtNKzOB5SvjPjuliwqxSY75GVWo'
 
@@ -52,10 +50,11 @@ async def photo(message: types.Message):
             h = face['box'][3]
             img = img[y:y + h, x:x + w]
             cv2.imwrite(r'/tmp/temp.jpg', cv2.resize(img, (200, 200),fx=0.3,fy=0.3, interpolation=cv2.INTER_AREA))
-            gender=model_detect.find('/tmp/temp.jpg','models/gender_model.pb','models/gender_label.txt')
+            gender= model_detect.find('/tmp/temp.jpg', '../models/gender_model.pb', '../models/gender_label.txt')
             if gender[0]=='men':
                 await bot.send_message(message.chat.id, 'Ваш пол мужской')
-                count_likes=model_detect.find('/tmp/temp.jpg','models/likes_model_men.pb','models/likes_label_men.txt')
+                count_likes= model_detect.find('/tmp/temp.jpg', '../models/likes_model_men.pb',
+                                              '../models/likes_label_men.txt')
 
                 await bot.send_message(message.chat.id, 'Ваш пол мужской'+count_likes[0])
     if len(faces)==0:
