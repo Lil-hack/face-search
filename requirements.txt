@@ -2,7 +2,6 @@ opencv-python
 youtube-dl
 pafy
 cmake
-face_recognition
 mtcnn
 tensorflow
 tensorflow-hub
